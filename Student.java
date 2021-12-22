@@ -1,108 +1,153 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package college_examination_management_system;
 
-import java.util.Scanner;
-/**
- *
- * @author 2002x
- */
-public class Student extends Person{
+import java.io.Serializable;
+import java.util.ArrayList;
+
+
+public class Student extends Person implements Serializable {
+
     private int level;
     private double GPA;
-    private final String studentFileName="Student.txt";
+    private String ProfileImagePath;
+
+    private final String studentFileName = "Students.bin";
+
+    public static ArrayList<Student> Students = new ArrayList<Student>();
+
+    public Student() {
+
+    }
+
+    public Student(String user, String pass, int id, String fname, String lname, int age, int level, double GPA, Department dept, String profileImage) {
+        super(user, pass, id, fname, lname, age, dept);
+
+        this.level = level;
+        this.GPA = GPA;
+        this.ProfileImagePath = profileImage;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public void setGPA(double GPA) {
+        this.GPA = GPA;
+    }
+
+    public void setProfileImage(String iamgePath) {
+        this.ProfileImagePath = iamgePath;
+    }
+
+    public int getLevel() {
+        return this.level;
+    }
+
+    public double getGPA() {
+        return this.GPA;
+    }
+
+    public String getProfileImage() {
+        return this.ProfileImagePath;
+    }
+
+    public boolean addStudent() {
+        loadFromFile();
+        Students.add(this);
+        return commitToFile();
+    }
+
+    public boolean commitToFile() {
+        return FManger.write(studentFileName, Students);
+    }
+
+    public void loadFromFile() {
+        Students = (ArrayList<Student>) FManger.read(studentFileName);
+    }
+
+    private int getStudentIndex(int id) {
+        for (int i = 0; i < Students.size(); i++) {
+            if (Students.get(i).getID() == id) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+    private int getStudentlevel(int level) {
+        for (int i = 0; i < Students.size(); i++) {
+            if (Students.get(i).getLevel() == level) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
     
-    public static ArrayList<Student>Students =new ArrayList<Student>();
+
+    public Student searchStudentById(int id) {
+        Student temp = new Student();
+        loadFromFile();
+        int index = getStudentIndex(id);
+        if (index != -1) {
+            return Students.get(index);
+        } else {
+            return temp;
+        }
+    }
+
+    public ArrayList<Student> listStudents() {
+        loadFromFile();
+        return Students;
+    }
+
+    public boolean updateStudentlevel() {
+        loadFromFile();
+        int index = getStudentlevel(this.getLevel());
+
+        if (index != -1) {
+            Students.set(index, this);
+
+            return commitToFile();
+        }
+
+        return false;
+    }
     
-    public Student(){
 
 
-}
-    
-    public Student(   int id, String user,String pass,String f_name,String l_name,int age,int level,double GPA){
-    super(user,pass,id,f_name,l_name,age,dept);
-    this.level=level;
-    this.GPA=GPA;
-    } 
-    
-    public void setlevel(int level){
-     this.level=level;
-    }
-     public void setlGPA(double GPA){
-     this.GPA=GPA;
-    }
-      public int getlevel(){
-    return this.level;
-    }
-         public double getGPA(){
-    return this.GPA;
-    }
-         public boolean addStudent(){
-         
-             if(FManger.write(getStudentData(),studentFileName,true))
-         return true;
-             else 
-                 return false;
-         }
-         private String getStudentData(){
-         
-         return this.id+"*"+ this.f_name+"*"+this.l_name+"*"+this.age+"*"+this.level+"*"+this.GPA+"*"+myDept.getDeptName()+"*"+this.username+"*"+this.pass+"*";
-       
-         }
-         private void commitToFile(){
-         
-         FManger.write(Students.get(0).getStudentData(),studentFileName,false);
-         for(int i=1;i<Students.size();i++ ){
-         FManger.write(Students.get(0).getStudentData(),studentFileName,true);
-         
-         }
-         
-         }
-         public int getStudentIndex(int id ){
-          for(int i=1;i<Students.size();i++ )
-              if(Students.get(i).getID()==id)
-                  return i;
-             
-           return -1;
-          }
-         private void loadFromFile(){
-         Students=(ArrayList<Student>)(Object) FManger.read(studentFileName);
-         }
-         public String displayAllStudents(){
-         loadFromFile();
-         String S="\nAll Student Data :\n";
-         for(Student x :Students){
-         S =S + x.toString();
-         
-         }
-          return S;
-         }
-         
-         
-         public String searchStudent(int id){
-          loadFromFile();
-         int index=getStudentIndex(id);
-         if(index!=-1)
-             return "\n Found ....!"+Students.get(index).toString();
-         else
-             return "\nNot Found ....!";
-         }
-         
-         
-         public void updateStudent(int oldID,Student x){
-         loadFromFile();
-         int index=getStudentIndex(oldID);
-         Students.set(index,x);
-         commitToFile();
-         }
-           public void deleteStudent(int id){
-           loadFromFile();
-            int index=getStudentIndex(id);
+    public boolean deleteStudent(int id) {
+        loadFromFile();
+        int index = getStudentIndex(id);
+
+        if (index != -1) {
             Students.remove(index);
-            commitToFile();
-           }
-           
-         }
+
+            return commitToFile();
+        }
+
+        return false;
+    }
+
+   
+    public String toString() {
+        return "\nI'm Eng : " + fname + " " + lname + "\n" + "ID : " + id + " Age : " + age + "\n"
+                + "Level : " + level + " GPA : " + GPA + "\nDept: " + myDept.getDeptName() + "\nUserName: " + userName + "\t Password: " + pass + "\n";
+    }
+
+    public void study() {
+        System.out.println("I'm Studying Undergraduate Courses @ FCIH :) ");
+    }
+
+    
+    public boolean login(String userName, String Pass) {
+        loadFromFile();
+        for (Student x : Students) {
+            if (userName.equals(x.userName) && Pass.equals(x.pass)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
 
